@@ -1,6 +1,7 @@
 import os
+
 # pyrefly: ignore [missing-import]
-from agent_framework import AssistantAgent, UserProxyAgent, SequentialBuilder
+from agent_framework import AssistantAgent, UserProxyAgent
 
 # Import skill modules
 from skills.analyze_dom import analyze_dom
@@ -9,21 +10,23 @@ from skills.execute_playwright import execute_playwright
 
 # LLM Configuration (2026 Standard)
 llm_config = {
-    "model": "gpt-4o-2026-production", # Hypothesized 2026 model
+    "model": "gpt-4o-2026-production",  # Hypothesized 2026 model
     "api_key": os.getenv("OPENAI_API_KEY"),
     "temperature": 0.2,
 }
 
+
 def get_architect():
     return AssistantAgent(
         name="Architect",
-        system_message="""You are a Senior QA Architect. 
+        system_message="""You are a Senior QA Architect.
         Your task is to analyze a website URL and a testing goal.
         Define a clear, step-by-step Test Plan.
         Focus on high-risk areas and user flows.
         Output the plan in markdown format.""",
         llm_config=llm_config,
     )
+
 
 def get_developer():
     return AssistantAgent(
@@ -36,6 +39,7 @@ def get_developer():
         llm_config=llm_config,
     )
 
+
 def get_healer_executor():
     return AssistantAgent(
         name="HealerExecutor",
@@ -47,12 +51,15 @@ def get_healer_executor():
         llm_config=llm_config,
     )
 
+
 def get_admin():
     return UserProxyAgent(
         name="Admin",
-        human_input_mode="NEVER", # 2026 focus on autonomy
+        human_input_mode="NEVER",  # 2026 focus on autonomy
         max_consecutive_auto_reply=10,
     )
+
+
 def register_skills(architect, developer, healer, admin):
     """
     Registers the skills to the appropriate agents.
@@ -61,5 +68,3 @@ def register_skills(architect, developer, healer, admin):
     for skill in [analyze_dom, take_screenshot, execute_playwright]:
         healer.register_for_llm(name=skill.__name__, description=skill.__doc__)(skill)
         admin.register_for_execution(name=skill.__name__)(skill)
-
-# End of file
